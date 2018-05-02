@@ -10,7 +10,7 @@ public:
 
   using next_proxy_index_type = tuple_concat_front_t<std::size_t, proxy_index_type>;
 
-  constexpr static const bool is_final_dimension = std::is_same<typename Matrix::index_type, proxy_index_type>::value;
+  constexpr static bool is_final_dimension = std::is_same<typename Matrix::index_type, proxy_index_type>::value;
 
   MatrixProxy(Matrix& matrix, const proxy_index_type& proxy_index)
     : _matrix{matrix}, _proxy_index{proxy_index} {}

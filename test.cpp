@@ -7,7 +7,6 @@
 #include <boost/test/included/unit_test.hpp>
 
 
-
 BOOST_AUTO_TEST_SUITE(test_suite_tuple_metafunctions)
 
 BOOST_AUTO_TEST_CASE(test_tuple_concat_front)
@@ -43,7 +42,7 @@ BOOST_AUTO_TEST_SUITE(test_suite_matrix)
 
 BOOST_AUTO_TEST_CASE(test_suite_matrix_size)
 {
-  Matrix<2, int> matrix{0};
+  Matrix<2, int, 0> matrix;
 
   BOOST_CHECK_EQUAL(0, matrix.size());
   matrix[0][0] = 1;
@@ -54,27 +53,16 @@ BOOST_AUTO_TEST_CASE(test_suite_matrix_size)
 
 BOOST_AUTO_TEST_CASE(test_suite_matrix_canonical_assignment)
 {
-  Matrix<2, int> matrix{0};
+  Matrix<2, int, 0> matrix;
 
   ((matrix[100][100] = 314) = 0) = 217;
   BOOST_CHECK_EQUAL(1, matrix.size());
   BOOST_CHECK_EQUAL(217, matrix[100][100]);
 }
 
-BOOST_AUTO_TEST_CASE(test_suite_matrix_type)
-{
-  Matrix<2, std::string> matrix{"zero"};
-
-  BOOST_CHECK_EQUAL(0, matrix.size());
-  matrix[0][0] = "one";
-  BOOST_CHECK_EQUAL(1, matrix.size());
-  matrix[0][0] = "zero";
-  BOOST_CHECK_EQUAL(0, matrix.size());
-}
-
 BOOST_AUTO_TEST_CASE(test_suite_matrix_iterator)
 {
-  Matrix<2, int> matrix{0};
+  Matrix<2, int, 0> matrix;
   std::size_t x;
   std::size_t y;
   int v;
@@ -98,7 +86,7 @@ BOOST_AUTO_TEST_CASE(test_suite_matrix_iterator)
 
 BOOST_AUTO_TEST_CASE(test_suite_matrix_dimensions)
 {
-  Matrix<4, int> matrix{0};
+  Matrix<4, int, 0> matrix;
   std::size_t x;
   std::size_t y;
   std::size_t z;

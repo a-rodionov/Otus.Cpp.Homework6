@@ -3,7 +3,7 @@
 
 void homework_6(std::ostream& out)
 {
-  Matrix<2, int> matrix{0};
+  Matrix<2, int, 0> matrix;
 
   for(int i{}, j{9}; i < 10; ++i, --j) {
     matrix[i][i] = i;

@@ -6,7 +6,7 @@
 #include "matrix_proxy.h"
 #include "matrix_iterator.h"
 
-template<size_t dimensions, typename T>
+template<size_t dimensions, typename T, T default_value>
 class Matrix {
 
 public:
@@ -25,12 +25,6 @@ public:
 
   friend class MatrixProxy<Matrix, index_type>;
   friend class MatrixProxy<const Matrix, index_type>;
-
-  explicit Matrix(const matrix_inner_value_type& default_value)
-    : default_value{default_value} {}
-
-  explicit Matrix(matrix_inner_value_type&& default_value)
-    : default_value{std::forward<matrix_inner_value_type>(default_value)} {}
 
   auto size() const {
     return values.size();
@@ -86,7 +80,7 @@ private:
     return value->second;
   }
 
-  matrix_inner_value_type default_value;
+  //matrix_inner_value_type default_value;
   storage_type values;
 
 };

@@ -27,13 +27,13 @@ public:
   friend class MatrixProxy<const Matrix, index_type>;
 
   explicit Matrix(const matrix_inner_value_type& default_value)
-    : _default_value{default_value} {}
+    : default_value{default_value} {}
 
   explicit Matrix(matrix_inner_value_type&& default_value)
-    : _default_value{std::forward<matrix_inner_value_type>(default_value)} {}
+    : default_value{std::forward<matrix_inner_value_type>(default_value)} {}
 
   auto size() const {
-    return _values.size();
+    return values.size();
   }
 
   auto operator[] (std::size_t index) {
@@ -42,51 +42,51 @@ public:
 
   iterator begin() noexcept
   {
-    return iterator{*this, std::begin(_values), std::end(_values)};
+    return iterator{*this, std::begin(values), std::end(values)};
   }
 
   const_iterator begin() const noexcept
   {
-    return const_iterator{*this, std::cbegin(_values), std::cend(_values)};
+    return const_iterator{*this, std::cbegin(values), std::cend(values)};
   }
 
   iterator end() noexcept
   {
-    return iterator{*this, std::end(_values), std::end(_values)};
+    return iterator{*this, std::end(values), std::end(values)};
   }
 
   const_iterator end() const noexcept
   {
-    return const_iterator{*this, std::cend(_values), std::cend(_values)};
+    return const_iterator{*this, std::cend(values), std::cend(values)};
   }
 
   const_iterator cbegin() const noexcept
   {
-    return const_iterator{*this, std::cbegin(_values), std::cend(_values)};
+    return const_iterator{*this, std::cbegin(values), std::cend(values)};
   }
 
   const_iterator cend() const noexcept
   {
-    return const_iterator{*this, std::cend(_values), std::cend(_values)};
+    return const_iterator{*this, std::cend(values), std::cend(values)};
   }
 
 private:
 
   void SetValue(const index_type& index, const matrix_inner_value_type& value) {
-    if(_default_value == value)
-      _values.erase(index);
+    if(default_value == value)
+      values.erase(index);
     else
-      _values[index] = value;
+      values[index] = value;
   }
 
   matrix_inner_value_type GetValue(const index_type& index) const {
-    auto value = _values.find(index);
-    if(std::cend(_values) == value)
-      return _default_value;
+    auto value = values.find(index);
+    if(std::cend(values) == value)
+      return default_value;
     return value->second;
   }
 
-  matrix_inner_value_type _default_value;
-  storage_type _values;
+  matrix_inner_value_type default_value;
+  storage_type values;
 
 };

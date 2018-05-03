@@ -16,56 +16,56 @@ public:
   using iterator_category = std::forward_iterator_tag;
 
   explicit MatrixIterator(Matrix& matrix, const inner_iterator& position, const inner_iterator& end)
-    : _matrix{matrix}, _position{position}, _end{end} { GetValue(); }
+    : matrix{matrix}, position{position}, end{end} { GetValue(); }
 
   reference operator*() const
   {
-    return *_value.get();
+    return *value.get();
   }
 
   pointer operator->() const
   {
-    return _value.get();
+    return value.get();
   }
 
   Self& operator++()
   {
-    ++_position;
+    ++position;
     GetValue();
     return *this;
   }
 
   Self operator++(int)
   {
-    Self tmp{_matrix, _position, _end};
-    ++_position;
+    Self tmp{matrix, position, end};
+    ++position;
     GetValue();
     return tmp;
   }
 
   bool operator==(const Self& other) const
   {
-    return _position == other._position;
+    return position == other.position;
   }
 
   bool operator!=(const Self& other) const
   {
-    return _position != other._position;
+    return position != other.position;
   }
 
 private:
 
   void GetValue() {
-    if(_position == _end)
-      _value.reset(nullptr);
+    if(position == end)
+      value.reset(nullptr);
     else
-      _value.reset(new value_type{_matrix, _position->first});
+      value.reset(new value_type{matrix, position->first});
   }
 
-  Matrix& _matrix;
-  inner_iterator _position;
-  inner_iterator _end;
-  std::unique_ptr<value_type> _value;
+  Matrix& matrix;
+  inner_iterator position;
+  inner_iterator end;
+  std::unique_ptr<value_type> value;
 };
 
 template<typename Matrix>
@@ -84,54 +84,54 @@ public:
   using iterator_category = std::forward_iterator_tag;
 
   explicit MatrixConstIterator(const Matrix& matrix, const inner_iterator& position, const inner_iterator& end)
-    : _matrix{matrix}, _position{position}, _end{end} { GetValue(); }
+    : matrix{matrix}, position{position}, end{end} { GetValue(); }
 
   reference operator*() const
   {
-    return *_value.get();
+    return *value.get();
   }
 
   pointer operator->() const
   {
-    return _value.get();
+    return value.get();
   }
 
   Self& operator++()
   {
-    ++_position;
+    ++position;
     GetValue();
     return *this;
   }
 
   Self operator++(int)
   {
-    Self tmp{_matrix, _position, _end};
-    ++_position;
+    Self tmp{matrix, position, end};
+    ++position;
     GetValue();
     return tmp;
   }
 
   bool operator==(const Self& other) const
   {
-    return _position == other._position;
+    return position == other.position;
   }
 
   bool operator!=(const Self& other) const
   {
-    return _position != other._position;
+    return position != other.position;
   }
 
 private:
 
   void GetValue() {
-    if(_position == _end)
-      _value.reset(nullptr);
+    if(position == end)
+      value.reset(nullptr);
     else
-      _value.reset(new value_type{_matrix, _position->first});
+      value.reset(new value_type{matrix, position->first});
   }
 
-  const Matrix& _matrix;
-  inner_iterator _position;
-  inner_iterator _end;
-  std::unique_ptr<value_type> _value;
+  const Matrix& matrix;
+  inner_iterator position;
+  inner_iterator end;
+  std::unique_ptr<value_type> value;
 };

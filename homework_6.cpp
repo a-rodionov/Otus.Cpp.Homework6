@@ -3,6 +3,7 @@
 
 void homework_6(std::ostream& out)
 {
+  
   Matrix<2, int, 0> matrix;
 
   for(int i{}, j{9}; i < 10; ++i, --j) {
@@ -26,7 +27,8 @@ void homework_6(std::ostream& out)
     std::size_t x;
     std::size_t y;
     int v;
-    std::tie(x, y, v) = static_cast<decltype(matrix)::ret_type>(matrix_element);
+    std::tie(x, y, v) = matrix_element;
     out << x << y << v << std::endl;
   }
+  
 }

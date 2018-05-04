@@ -71,14 +71,14 @@ BOOST_AUTO_TEST_CASE(test_suite_matrix_iterator)
   matrix[100][101] = 217;
   auto matrix_element = std::cbegin(matrix);
 
-  std::tie(x, y, v) = static_cast<decltype(matrix)::ret_type>(*matrix_element);
+  std::tie(x, y, v) = *matrix_element;
   BOOST_CHECK_EQUAL(100, x);
   BOOST_CHECK_EQUAL(100, y);
   BOOST_CHECK_EQUAL(314, v);
 
   ++matrix_element;
 
-  std::tie(x, y, v) = static_cast<decltype(matrix)::ret_type>(*matrix_element);
+  std::tie(x, y, v) = *matrix_element;
   BOOST_CHECK_EQUAL(100, x);
   BOOST_CHECK_EQUAL(101, y);
   BOOST_CHECK_EQUAL(217, v);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(test_suite_matrix_dimensions)
   matrix[111][222][333][444] = 555;
 
   auto matrix_element = std::cbegin(matrix);
-  std::tie(x, y, z, t, v) = static_cast<decltype(matrix)::ret_type>(*matrix_element);
+  std::tie(x, y, z, t, v) = *matrix_element;
   BOOST_CHECK_EQUAL(111, x);
   BOOST_CHECK_EQUAL(222, y);
   BOOST_CHECK_EQUAL(333, z);

@@ -9,22 +9,6 @@
 
 BOOST_AUTO_TEST_SUITE(test_suite_tuple_metafunctions)
 
-BOOST_AUTO_TEST_CASE(test_tuple_concat_front)
-{
-  BOOST_STATIC_ASSERT(true == std::is_same<std::tuple<std::string, int>,
-                                          tuple_concat_front_t<std::string, std::tuple<int>>>::value);
-  BOOST_STATIC_ASSERT(false == std::is_same<std::tuple<std::string, int>,
-                                          tuple_concat_front_t<int, std::tuple<std::string>>>::value);
-}
-
-BOOST_AUTO_TEST_CASE(test_tuple_concat_back)
-{
-  BOOST_STATIC_ASSERT(false == std::is_same<std::tuple<std::string, int>,
-                                          tuple_concat_back_t<std::string, std::tuple<int>>>::value);
-  BOOST_STATIC_ASSERT(true == std::is_same<std::tuple<std::string, int>,
-                                          tuple_concat_back_t<int, std::tuple<std::string>>>::value);
-}
-
 BOOST_AUTO_TEST_CASE(test_generate_tuple)
 {
   BOOST_STATIC_ASSERT(true == std::is_same<std::tuple<int>,

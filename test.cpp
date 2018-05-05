@@ -1,6 +1,4 @@
-#include "homework_6.h"
 #include "matrix.h"
-#include <array>
 
 #define BOOST_TEST_MODULE test_main
 

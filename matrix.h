@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <set>
+#include <array>
 #include "tuple_metafunctions.h"
 
 template<size_t dimensions, typename T, T default_value>
@@ -9,16 +10,19 @@ class Matrix {
 
   static_assert(dimensions > 1, "Matrix dimensions can't be less than 2.");
 
-  template<typename Matrix, typename proxy_index_type>
+  template<typename Matrix>
   class MatrixProxy;
 
 public:
 
+  static constexpr size_t index_elements_count = dimensions;
+
   using outter_value_type = T;
-  using index_type = generate_tuple_t<std::size_t, dimensions>;
-  using data_type = decltype(std::tuple_cat(index_type{}, std::make_tuple(T{})));
-  using storage_type = std::set<data_type, tuple_n_less<dimensions, data_type>>;
-  using proxy_type = MatrixProxy<Matrix, index_type>;
+  using index_element_type = std::size_t;
+  using index_type = generate_tuple_t<index_element_type, index_elements_count>;
+  using inner_value_type = decltype(std::tuple_cat(index_type{}, std::make_tuple(T{})));
+  using storage_type = std::set<inner_value_type, tuple_n_less<dimensions, inner_value_type>>;
+  //using proxy_type = MatrixProxy<Matrix, index_type>;
   //using value_type = proxy_type;
   //using const_proxy_type = MatrixProxy<const Matrix, index_type>;
   //using const_value_type = const_proxy_type;
@@ -28,7 +32,7 @@ public:
   }
 
   auto operator[] (std::size_t index) {
-    return MatrixProxy<Matrix, std::tuple<std::size_t>>{*this, std::make_tuple(index)};
+    return MatrixProxy<Matrix>{*this, index};
   }
 
   auto begin() noexcept {
@@ -91,55 +95,45 @@ private:
 
   storage_type values;
 
-  template<typename Matrix, typename proxy_index_type>
+  template<typename Matrix>
   class MatrixProxy
   {
 
   public:
 
-    using next_proxy_index_type = decltype(std::tuple_cat(proxy_index_type{}, std::make_tuple(std::size_t{})));
+    MatrixProxy(Matrix& matrix, std::size_t index)
+      : matrix{matrix}, index_position{} {
+        SetIndex(index);
+      }
 
-    constexpr static bool is_final_dimension = std::is_same<typename Matrix::index_type, proxy_index_type>::value;
-
-    MatrixProxy(Matrix& matrix, const proxy_index_type& proxy_index)
-      : matrix{matrix}, proxy_index{proxy_index} {}
-
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     operator typename Matrix::outter_value_type() const {
-      return matrix.GetValue(proxy_index);
+      if(index_position != Matrix::index_elements_count)
+        throw std::logic_error("");
+      return matrix.GetValue(make_tuple_from_container(inner_index));
     }
 
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
-    operator typename Matrix::data_type() const {
-      return std::tuple_cat(proxy_index, std::make_tuple(matrix.GetValue(proxy_index)));
-    }
-
-    template<typename U = MatrixProxy, std::enable_if_t<!U::is_final_dimension, int> = 0>
     auto operator[](std::size_t index) const {
-      return MatrixProxy<Matrix, next_proxy_index_type>{matrix, std::tuple_cat(proxy_index, std::make_tuple(index))};
+      auto matrixProxy{*this};
+      matrixProxy.SetIndex(index);
+      return matrixProxy;
     }
 
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
-    auto operator[](std::size_t index) const {
-      std::get<std::tuple_size<U>::value - 1>(proxy_index) = index;
-      return matrix.GetValue(proxy_index);
-    }
-
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto& operator[](std::size_t index) {
-      std::get<std::tuple_size<U>::value - 1>(proxy_index) = index;
+      SetIndex(index);
       return *this;
     }
 
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto& operator=(const typename Matrix::outter_value_type& value) {
-      matrix.SetValue(proxy_index, value);
+      if(index_position != Matrix::index_elements_count)
+        throw std::logic_error("");
+      matrix.SetValue(make_tuple_from_container(inner_index), value);
       return *this;
     }
 
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto operator==(const typename Matrix::outter_value_type& value) const {
-      return value == matrix.GetValue(proxy_index);
+      if(index_position != Matrix::index_elements_count)
+        throw std::logic_error("");
+      return value == matrix.GetValue(make_tuple_from_container(inner_index));
     }
 
     friend bool operator==(const typename Matrix::outter_value_type& lhs, const MatrixProxy& rhs) {
@@ -148,8 +142,16 @@ private:
 
   private:
 
+    void SetIndex(std::size_t index) {
+      if(index_position == Matrix::index_elements_count)
+        inner_index[index_position-1] = index;
+      else
+        inner_index[index_position++] = index;
+    }
+
     Matrix& matrix;
-    proxy_index_type proxy_index;
+    size_t index_position;
+    std::array<typename Matrix::index_element_type, Matrix::index_elements_count> inner_index;
   };
 
 };

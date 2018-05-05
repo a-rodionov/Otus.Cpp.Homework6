@@ -51,3 +51,15 @@ struct tuple_n_less {
     return tuple_n_less_func(lhs, rhs, std::make_index_sequence<N>{});
   }
 };
+
+
+
+template<typename T, std::size_t ... Indices>
+auto make_tuple_from_container_impl(const T& values, std::index_sequence<Indices...>) {
+  return std::tuple_cat(std::make_tuple(values[Indices]...));
+}
+
+template<typename T>
+auto make_tuple_from_container(const T& values) {
+  return make_tuple_from_container_impl(values, std::make_index_sequence<values.size()>{});
+}

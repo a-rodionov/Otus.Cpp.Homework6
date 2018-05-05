@@ -26,25 +26,10 @@ private:
     void SetValue(const index_type& index, const outter_value_type& value) {
       auto inner_value = std::tuple_cat(index, std::make_tuple(value));
       auto position = values.find(inner_value);
-
-      if(std::cend(values) != position) {
+      if(std::cend(values) != position)
         values.erase(position);
-      }
-
       if(default_value != value)
         values.insert(inner_value);
-  /*
-      if(default_value == value) {
-        if(std::cend(values) != position)
-          values.erase(position);
-      }
-      else {
-        if(std::cend(values) == position)
-          values.insert(inner_value);
-        else
-          std::get<dimensions>(*position) = value;
-      }
-  */
     }
 
     auto GetValue(const index_type& index) const {
@@ -133,7 +118,7 @@ public:
     return matrix_storage->values.size();
   }
 
-  auto operator[] (std::size_t index) {
+  auto operator[] (std::size_t index) const {
     return MatrixProxy<Matrix>{matrix_storage, index};
   }
 

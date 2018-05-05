@@ -60,7 +60,7 @@ private:
       if(index_position != index_elements_count)
         throw std::logic_error("The last dimension index isn't reached yet.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
-      return own_matrix_storage->GetValue(make_tuple_from_container(inner_index));
+      return own_matrix_storage->GetValue(make_tuple_from_array(inner_index));
     }
 
     auto operator[](std::size_t index) const {
@@ -78,7 +78,7 @@ private:
       if(index_position != index_elements_count)
         throw std::logic_error("The last dimension index isn't reached yet.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
-      own_matrix_storage->SetValue(make_tuple_from_container(inner_index), value);
+      own_matrix_storage->SetValue(make_tuple_from_array(inner_index), value);
       return *this;
     }
 
@@ -86,7 +86,7 @@ private:
       if(index_position != index_elements_count)
         throw std::logic_error("The last dimension index isn't reached yet.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
-      return value == own_matrix_storage->GetValue(make_tuple_from_container(inner_index));
+      return value == own_matrix_storage->GetValue(make_tuple_from_array(inner_index));
     }
 
     friend bool operator==(const outter_value_type& lhs, const MatrixProxy& rhs) {

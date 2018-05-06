@@ -54,12 +54,12 @@ struct tuple_n_less {
 
 
 
-template<typename T, std::size_t ... Indices>
-auto make_tuple_from_array_impl(const T& values, std::index_sequence<Indices...>) {
+template<typename T, std::size_t N, std::size_t ... Indices>
+auto make_tuple_from_array_impl(const std::array<T, N>& values, std::index_sequence<Indices...>) {
   return std::tuple_cat(std::make_tuple(values[Indices]...));
 }
 
-template<typename T>
-auto make_tuple_from_array(const T& values) {
-  return make_tuple_from_array_impl(values, std::make_index_sequence<values.size()>{});
+template<typename T, std::size_t N>
+auto make_tuple_from_array(const std::array<T, N>& values) {
+  return make_tuple_from_array_impl(values, std::make_index_sequence<N>{});
 }

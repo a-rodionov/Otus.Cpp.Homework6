@@ -48,19 +48,6 @@ BOOST_AUTO_TEST_CASE(test_tuple_n_less)
   BOOST_CHECK(false == cmp_two_elements(third, first));
 }
 
-BOOST_AUTO_TEST_CASE(test_make_tuple_from_array)
-{
-  std::tuple<int, int, int> tuple;
-  std::array<int, 3> array_3;
-  std::array<int, 4> array_4;
-
-  auto tuple_from_array_3 = make_tuple_from_array(array_3);
-  auto tuple_from_array_4 = make_tuple_from_array(array_4);
-
-  BOOST_STATIC_ASSERT(true == std::is_same<decltype(tuple), decltype(tuple_from_array_3)>::value);
-  BOOST_STATIC_ASSERT(false == std::is_same<decltype(tuple), decltype(tuple_from_array_4)>::value);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
 
 
@@ -154,14 +141,13 @@ BOOST_AUTO_TEST_CASE(test_matrix_n_dimensions)
 BOOST_AUTO_TEST_CASE(test_matrix_wrong_dimension_assignment)
 {
   Matrix<2, int, 0> matrix;
-  BOOST_CHECK_THROW(matrix[100] = 111, std::logic_error);
+  //matrix[100] = 111;        //compile error
 }
 
 BOOST_AUTO_TEST_CASE(test_matrix_wrong_dimension_casting)
 {
   Matrix<2, int, 0> matrix;
-  int value;
-  BOOST_CHECK_THROW(value = matrix[100], std::logic_error);
+  //int value = matrix[100];  //compile error
 }
 
 auto ReturnPseudoValue_ProxyInFact()

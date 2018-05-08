@@ -45,48 +45,54 @@ private:
 
   using matrix_storage_type = MatrixStorage<Matrix>;
 
-  template<typename Matrix>
+  template<typename Matrix, typename proxy_index_type>
   class MatrixProxy
   {
 
+    using next_proxy_index_type = decltype(std::tuple_cat(proxy_index_type{}, std::make_tuple(std::size_t{})));
+
+    constexpr static bool is_final_dimension = std::is_same<index_type, proxy_index_type>::value;
+
   public:
 
-    MatrixProxy(const std::weak_ptr<matrix_storage_type>& matrix_storage, std::size_t index)
-      : matrix_storage{matrix_storage}, index_position{} {
-        SetIndex(index);
-      }
+    MatrixProxy(const std::weak_ptr<matrix_storage_type>& matrix_storage, const proxy_index_type& proxy_index)
+      : matrix_storage{matrix_storage}, inner_index{proxy_index} {}
 
+    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     operator outter_value_type() const {
-      if(index_position != index_elements_count)
-        throw std::logic_error("The last dimension index isn't reached yet.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
-      return own_matrix_storage->GetValue(make_tuple_from_array(inner_index));
+      return own_matrix_storage->GetValue(inner_index);
     }
 
+    template<typename U = MatrixProxy, std::enable_if_t<!U::is_final_dimension, int> = 0>
+    auto operator[](std::size_t index) const {
+      return MatrixProxy<Matrix, next_proxy_index_type>{matrix_storage, std::tuple_cat(inner_index, std::make_tuple(index))};
+    }
+
+    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto operator[](std::size_t index) const {
       auto matrixProxy{*this};
-      matrixProxy.SetIndex(index);
+      std::get<std::tuple_size<proxy_index_type>::value - 1>(matrixProxy.inner_index) = index;
       return matrixProxy;
     }
 
+    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto& operator[](std::size_t index) {
-      SetIndex(index);
+      std::get<std::tuple_size<proxy_index_type>::value - 1>(inner_index) = index;
       return *this;
     }
 
+    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto& operator=(const outter_value_type& value) {
-      if(index_position != index_elements_count)
-        throw std::logic_error("The last dimension index isn't reached yet.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
-      own_matrix_storage->SetValue(make_tuple_from_array(inner_index), value);
+      own_matrix_storage->SetValue(inner_index, value);
       return *this;
     }
 
+    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto operator==(const outter_value_type& value) const {
-      if(index_position != index_elements_count)
-        throw std::logic_error("The last dimension index isn't reached yet.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
-      return value == own_matrix_storage->GetValue(make_tuple_from_array(inner_index));
+      return value == own_matrix_storage->GetValue(inner_index);
     }
 
     friend bool operator==(const outter_value_type& lhs, const MatrixProxy& rhs) {
@@ -95,16 +101,8 @@ private:
 
   private:
 
-    void SetIndex(std::size_t index) {
-      if(index_position == index_elements_count)
-        inner_index[index_position-1] = index;
-      else
-        inner_index[index_position++] = index;
-    }
-
     std::weak_ptr<matrix_storage_type> matrix_storage;
-    size_t index_position;
-    std::array<index_element_type, index_elements_count> inner_index;
+    proxy_index_type inner_index;
   };
 
 public:
@@ -119,7 +117,7 @@ public:
   }
 
   auto operator[] (std::size_t index) const {
-    return MatrixProxy<Matrix>{matrix_storage, index};
+    return MatrixProxy<Matrix, std::tuple<std::size_t>>{matrix_storage, std::make_tuple(index)};
   }
 
   auto begin() noexcept {

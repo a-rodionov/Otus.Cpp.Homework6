@@ -75,21 +75,6 @@ BOOST_AUTO_TEST_CASE(test_matrix_canonical_assignment)
   BOOST_CHECK_EQUAL(217, matrix[100][100]);
 }
 
-BOOST_AUTO_TEST_CASE(test_matrix_proxy_index_reassignment)
-{
-  Matrix<2, int, 0> matrix;
-
-  matrix[100][100] = 314;
-  matrix[100][101] = 217;
-
-  auto element = matrix[100][100];
-  BOOST_CHECK_EQUAL(314, element);
-
-  BOOST_CHECK_EQUAL(217, element[101]);
-
-  BOOST_CHECK_EQUAL(0, element[102]);
-}
-
 BOOST_AUTO_TEST_CASE(test_matrix_iterator)
 {
   Matrix<2, int, 0> matrix;
@@ -141,7 +126,8 @@ BOOST_AUTO_TEST_CASE(test_matrix_n_dimensions)
 BOOST_AUTO_TEST_CASE(test_matrix_wrong_dimension_assignment)
 {
   Matrix<2, int, 0> matrix;
-  //matrix[100] = 111;        //compile error
+  //matrix[100] = 111;                      //compile error
+  //matrix[100][100][100][100] = 111;       //compile error
 }
 
 BOOST_AUTO_TEST_CASE(test_matrix_wrong_dimension_casting)

@@ -10,17 +10,14 @@ class Matrix {
 
 public:
 
-  static constexpr size_t index_elements_count = dimensions;
-
   using outter_value_type = T;
   using index_element_type = std::size_t;
-  using index_type = generate_tuple_t<index_element_type, index_elements_count>;
+  using index_type = generate_tuple_t<index_element_type, dimensions>;
   using inner_value_type = decltype(std::tuple_cat(index_type{}, std::make_tuple(T{})));
-  using storage_type = std::set<inner_value_type, tuple_n_less<index_elements_count, inner_value_type>>;
+  using storage_type = std::set<inner_value_type, tuple_n_less<dimensions, inner_value_type>>;
 
 private:
 
-  template<typename Matrix>
   struct MatrixStorage
   {
     void SetValue(const index_type& index, const outter_value_type& value) {
@@ -37,13 +34,13 @@ private:
       auto position = values.find(inner_value);
       if(std::cend(values) == position)
         return default_value;
-      return std::get<index_elements_count>(*position);
+      return std::get<dimensions>(*position);
     }
 
     storage_type values;
   };
 
-  using matrix_storage_type = MatrixStorage<Matrix>;
+  using matrix_storage_type = MatrixStorage;
 
   template<typename Matrix, typename proxy_index_type>
   class MatrixProxy
@@ -58,39 +55,26 @@ private:
     MatrixProxy(const std::weak_ptr<matrix_storage_type>& matrix_storage, const proxy_index_type& proxy_index)
       : matrix_storage{matrix_storage}, inner_index{proxy_index} {}
 
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     operator outter_value_type() const {
+      static_assert(is_final_dimension, "Error getting value because current index value doesn't match required.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
       return own_matrix_storage->GetValue(inner_index);
     }
 
-    template<typename U = MatrixProxy, std::enable_if_t<!U::is_final_dimension, int> = 0>
     auto operator[](std::size_t index) const {
+      static_assert(!is_final_dimension, "Error indexing because index is already complete");
       return MatrixProxy<Matrix, next_proxy_index_type>{matrix_storage, std::tuple_cat(inner_index, std::make_tuple(index))};
     }
 
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
-    auto operator[](std::size_t index) const {
-      auto matrixProxy{*this};
-      std::get<std::tuple_size<proxy_index_type>::value - 1>(matrixProxy.inner_index) = index;
-      return matrixProxy;
-    }
-
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
-    auto& operator[](std::size_t index) {
-      std::get<std::tuple_size<proxy_index_type>::value - 1>(inner_index) = index;
-      return *this;
-    }
-
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto& operator=(const outter_value_type& value) {
+      static_assert(is_final_dimension, "Error assigning value because current index value doesn't match required.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
       own_matrix_storage->SetValue(inner_index, value);
       return *this;
     }
 
-    template<typename U = MatrixProxy, std::enable_if_t<U::is_final_dimension, int> = 0>
     auto operator==(const outter_value_type& value) const {
+      static_assert(is_final_dimension, "Error comparing with value because current index value doesn't match required.");
       std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
       return value == own_matrix_storage->GetValue(inner_index);
     }

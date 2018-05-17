@@ -40,9 +40,7 @@ private:
     storage_type values;
   };
 
-  using matrix_storage_type = MatrixStorage;
-
-  template<typename Matrix, typename proxy_index_type>
+  template<typename MatrixStorageType, typename proxy_index_type>
   class MatrixProxy
   {
 
@@ -52,30 +50,30 @@ private:
 
   public:
 
-    MatrixProxy(const std::weak_ptr<matrix_storage_type>& matrix_storage, const proxy_index_type& proxy_index)
+    MatrixProxy(const std::weak_ptr<MatrixStorageType>& matrix_storage, const proxy_index_type& proxy_index)
       : matrix_storage{matrix_storage}, inner_index{proxy_index} {}
 
     operator outter_value_type() const {
       static_assert(is_final_dimension, "Error getting value because current index value doesn't match required.");
-      std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
+      std::shared_ptr<MatrixStorageType> own_matrix_storage{matrix_storage};
       return own_matrix_storage->GetValue(inner_index);
     }
 
     auto operator[](std::size_t index) const {
       static_assert(!is_final_dimension, "Error indexing because index is already complete");
-      return MatrixProxy<Matrix, next_proxy_index_type>{matrix_storage, std::tuple_cat(inner_index, std::make_tuple(index))};
+      return MatrixProxy<MatrixStorageType, next_proxy_index_type>{matrix_storage, std::tuple_cat(inner_index, std::make_tuple(index))};
     }
 
     auto& operator=(const outter_value_type& value) {
       static_assert(is_final_dimension, "Error assigning value because current index value doesn't match required.");
-      std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
+      std::shared_ptr<MatrixStorageType> own_matrix_storage{matrix_storage};
       own_matrix_storage->SetValue(inner_index, value);
       return *this;
     }
 
     auto operator==(const outter_value_type& value) const {
       static_assert(is_final_dimension, "Error comparing with value because current index value doesn't match required.");
-      std::shared_ptr<matrix_storage_type> own_matrix_storage{matrix_storage};
+      std::shared_ptr<MatrixStorageType> own_matrix_storage{matrix_storage};
       return value == own_matrix_storage->GetValue(inner_index);
     }
 
@@ -85,7 +83,7 @@ private:
 
   private:
 
-    std::weak_ptr<matrix_storage_type> matrix_storage;
+    std::weak_ptr<MatrixStorageType> matrix_storage;
     proxy_index_type inner_index;
   };
 
@@ -94,14 +92,18 @@ public:
   static_assert(dimensions > 1, "Matrix dimensions can't be less than 2.");
 
   Matrix()
-    :matrix_storage{new matrix_storage_type{}} {}
+    :matrix_storage{new MatrixStorage{}} {}
 
   auto size() const {
     return matrix_storage->values.size();
   }
 
+  auto operator[] (std::size_t index) {
+    return MatrixProxy<MatrixStorage, std::tuple<std::size_t>>{matrix_storage, std::make_tuple(index)};
+  }
+
   auto operator[] (std::size_t index) const {
-    return MatrixProxy<Matrix, std::tuple<std::size_t>>{matrix_storage, std::make_tuple(index)};
+    return MatrixProxy<const MatrixStorage, std::tuple<std::size_t>>{matrix_storage, std::make_tuple(index)};
   }
 
   auto begin() noexcept {
@@ -130,5 +132,5 @@ public:
 
 private:
 
-  std::shared_ptr<matrix_storage_type> matrix_storage;
+  std::shared_ptr<MatrixStorage> matrix_storage;
 };

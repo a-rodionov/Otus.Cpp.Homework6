@@ -136,6 +136,13 @@ BOOST_AUTO_TEST_CASE(test_matrix_wrong_dimension_casting)
   //int value = matrix[100];  //compile error
 }
 
+BOOST_AUTO_TEST_CASE(const_matrix)
+{
+  const Matrix<2, int, 0> matrix;
+  //int value = matrix[100][100] = 314;         //compile error
+  //BOOST_CHECK_EQUAL(314, matrix[100][100]);   //compile error
+}
+
 auto ReturnPseudoValue_ProxyInFact()
 {
   Matrix<2, int, 0> matrix;
